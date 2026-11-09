@@ -30,3 +30,4 @@ export async function DELETE() {
   await clearStaffSession();
   return NextResponse.json({ success: true });
 }
+

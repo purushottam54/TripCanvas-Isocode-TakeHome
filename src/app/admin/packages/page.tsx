@@ -121,3 +121,4 @@ export default async function AdminPackagesPage({ searchParams }: AdminPackagesP
     </div>
   );
 }
+

@@ -106,3 +106,4 @@ describe("Deterministic Package Recommendations & AI Extraction", () => {
     expect(fallback.reviewNeeded).toBeDefined();
   });
 });
+

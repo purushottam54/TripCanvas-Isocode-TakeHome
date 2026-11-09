@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TripCanvas — Technical Design Document</title>
+<style>
+  @page {
+    size: A4;
+    margin: 20mm 18mm 20mm 18mm;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #252A27;
+    background: #FFFFFF;
+    line-height: 1.55;
+    font-size: 11pt;
+  }
+  h1, h2, h3, h4 {
+    color: #173F35;
+    font-family: "Georgia", serif;
+  }
+  h1 {
+    font-size: 24pt;
+    border-bottom: 2px solid #C58B63;
+    padding-bottom: 6px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+  }
+  h2 {
+    font-size: 16pt;
+    border-bottom: 1px solid #D9E2D8;
+    padding-bottom: 4px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 13pt;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    page-break-after: avoid;
+  }
+  p {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  .cover-page {
+    page-break-after: always;
+    text-align: center;
+    padding-top: 60px;
+  }
+  .cover-title {
+    font-size: 34pt;
+    font-weight: bold;
+    color: #173F35;
+    margin-bottom: 5px;
+    font-family: "Georgia", serif;
+  }
+  .cover-subtitle {
+    font-size: 18pt;
+    color: #C58B63;
+    margin-bottom: 30px;
+    font-style: italic;
+  }
+  .cover-meta {
+    margin-top: 40px;
+    text-align: left;
+    display: inline-block;
+    font-size: 11pt;
+    background: #F7F5EF;
+    padding: 20px 30px;
+    border-radius: 8px;
+    border: 1px solid #D9E2D8;
+  }
+  .cover-meta div {
+    margin-bottom: 8px;
+  }
+  .links-box {
+    background: #F7F5EF;
+    border: 1px solid #C58B63;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin: 20px 0;
+  }
+  .links-box a {
+    color: #173F35;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0 20px 0;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #D9E2D8;
+    padding: 7px 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #173F35;
+    color: #FFFFFF;
+    font-weight: 600;
+  }
+  tr:nth-child(even) {
+    background-color: #F7F5EF;
+  }
+  pre {
+    background: #F7F5EF;
+    border: 1px solid #D9E2D8;
+    border-left: 4px solid #173F35;
+    padding: 10px 14px;
+    font-family: Consolas, monospace;
+    font-size: 8.5pt;
+    line-height: 1.4;
+    overflow-x: auto;
+    page-break-inside: avoid;
+  }
+  ul {
+    margin-top: 0;
+    margin-bottom: 12px;
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 5px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 8.5pt;
+    font-weight: bold;
+  }
+  .badge-success { background: #d1fae5; color: #065f46; }
+  .badge-info { background: #dbeafe; color: #1e40af; }
+  .badge-warn { background: #fef3c7; color: #92400e; }
+</style>
+</head>
+<body>
+
+<div class="cover-page">
+  <div class="cover-title">TRIPCANVAS</div>
+  <div class="cover-subtitle">Technical Design Document (TDD)</div>
+  <p><strong>Enterprise Travel Platform & Versioned Content Management System</strong></p>
+  
+  <div class="cover-meta">
+    <div><strong>Prepared For:</strong> IsoCode Workspace</div>
+    <div><strong>Submission Track:</strong> Software Engineering Intern Take-Home Assignment</div>
+    <div><strong>Client Case:</strong> Company A, Kochi, Kerala</div>
+    <div><strong>Document Version:</strong> 1.0.0 (Production Release)</div>
+    <div><strong>Date:</strong> November 2026</div>
+  </div>
+
+  <div class="links-box" style="text-align: left; max-width: 500px; margin: 30px auto 0 auto;">
+    <h3 style="margin-top: 0; color: #173F35;">Repository & Live Application Links</h3>
+    <div><strong>GitHub Repository:</strong> <a href="#">[INSERT PUBLIC GITHUB URL]</a></div>
+    <div><strong>Live Application:</strong> <a href="#">[INSERT LIVE APPLICATION URL]</a></div>
+    <div style="font-size: 8.5pt; color: #666; margin-top: 6px;">* Replace bracketed placeholders upon repository publishing and Vercel domain assignment.</div>
+  </div>
+</div>
+
+<h2>2. Executive Summary</h2>
+<p>
+  <strong>TripCanvas</strong> is an enterprise-grade full-stack travel platform and versioned content management system (CMS) engineered for <strong>Company A</strong>, a luxury boutique tour operator based in Kochi, Kerala. The platform bridges the divide between aspirational travel editorial and transactional operations, enabling tour operators to market bespoke South India itineraries, manage seasonal pricing with strict financial integrity, ingest multi-channel traveller enquiries, and streamline consultation through server-side artificial intelligence.
+</p>
+<p>
+  The system is built upon modern web architecture utilizing Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Supabase PostgreSQL with Row Level Security (RLS), and Google's official Gemini Generative AI SDK (@google/genai). By prioritizing a bespoke editorial aesthetic over generic UI templates, TripCanvas delivers an immersive consumer experience alongside a rugged, high-throughput administrative console.
+</p>
+
+<h2>3. Problem Statement & Business Context</h2>
+<p>Company A faced substantial operational friction across its traditional workflow, hindering business expansion:</p>
+<ul>
+  <li><strong>Developer Dependency for Catalog Updates:</strong> Package itinerary modifications, hotel tier reclassifications, and seasonal tariff adjustments historically required engineering intervention, creating severe marketing lag.</li>
+  <li><strong>Scattered Enquiry Management:</strong> Customer enquiries arrived via fragmented, unmonitored channels (ad-hoc email, WhatsApp, phone calls) without centralized ticket tracking, leading to slow response times and missed booking conversions.</li>
+  <li><strong>Manual and Inaccurate Quote Preparation:</strong> Consultants manually referenced spreadsheets to calculate rates across changing peak and monsoon seasons. This manual process led to pricing discrepancies, unquoted GST, and confusion around child occupancy.</li>
+  <li><strong>Absence of Version History:</strong> Live edits directly mutated public pages, leaving no historical audit trail regarding what package terms or hotel categories were active when a traveller confirmed their reservation.</li>
+</ul>
+
+<h2>4. Project Objectives and Scope</h2>
+<p>The system scope is categorized into four verified boundaries:</p>
+<ul>
+  <li><strong>Implemented Features:</strong> Public package catalog (<code>/packages</code>) with destination, duration, price, and seasonal filtering; detailed package pages (<code>/packages/[slug]</code>) with day-wise itineraries, inclusions/exclusions, and transparent pricing tables; validated public enquiry forms with honeypot spam protection and rate limiting; versioned CMS editor with immutable publishing and snapshot rollback; CRM enquiry inbox with SLA tracking and status transitions; server-side Google Gemini requirement extraction with confidence scoring; deterministic package recommendations strictly using database records; simulated editorial reply generation with mandatory consultant approval; full audit logging; and permanent 301 legacy URL redirect management with bulk CSV import.</li>
+  <li><strong>Partially Implemented Features:</strong> Supabase remote database integration: complete SQL migrations, schema constraints, and RLS policies are authored in <code>supabase/migrations/</code> and <code>supabase/seed.sql</code>, with an active fallback in-memory persistent store to allow immediate, zero-friction local execution without prior cloud migration.</li>
+  <li><strong>Planned Features (Roadmap):</strong> Interactive branded PDF quote generator, multi-currency live exchange rate conversion, bi-directional WhatsApp Business API synchronization via webhooks, and automated consultant workload balancing.</li>
+  <li><strong>Explicitly Excluded Features:</strong> Live payment gateway execution (e.g. Razorpay/Stripe checkout) and automated outbound message delivery to live telephone carriers, deliberately omitted to prevent unauthorized financial commitments or spam during sandbox evaluation.</li>
+</ul>
+
+<h2>5. Functional Requirements</h2>
+<ul>
+  <li><strong>FR-01 (Catalog Discovery):</strong> Search published packages by destination keyword, filter by duration tiers (1-4d, 5-7d, 8d+), starting price ranges, and active seasons, and sort results ascending or descending.</li>
+  <li><strong>FR-02 (Transparent Price Calculation):</strong> Display verified per-person pricing, twin-sharing basis disclosures, statutory 5% GST disclosures, and explicit notices that child pricing requires confirmation.</li>
+  <li><strong>FR-03 (Enquiry Ingestion & Ack):</strong> Public travellers can submit travel requirements without creating accounts; valid submissions create persistent records with unique reference IDs (e.g. <code>ENQ-2026-001</code>) and generate immediate system acknowledgement logs.</li>
+  <li><strong>FR-04 (Versioned CMS Management):</strong> Staff can create draft packages, preview unpublished changes without altering live pages, and execute transactional publishing that updates package pointers and preserves prior versions.</li>
+  <li><strong>FR-05 (Non-Destructive Rollback):</strong> Restoring an earlier version creates a brand-new version snapshot from historical data without mutating or deleting prior versions.</li>
+  <li><strong>FR-06 (AI Parameter Extraction):</strong> Server-side Gemini analyzes traveller messages to extract destination, month, duration, adults, children, budget, and desired experiences with confidence ratings.</li>
+  <li><strong>FR-07 (Deterministic Recommendation):</strong> Matches packages against extracted parameters using a deterministic 100-point algorithm, strictly referencing published database packages.</li>
+  <li><strong>FR-08 (AI Reply Drafting & Approval):</strong> Drafts an editorial email response populated strictly with database pricing records; requires manual consultant approval before marking as dispatched.</li>
+  <li><strong>FR-09 (Audit Activity Logging):</strong> All administrative actions (creation, editing, publishing, rollback, assignment, and approval) generate immutable audit records.</li>
+  <li><strong>FR-10 (Legacy URL Redirects):</strong> Maps outdated website URLs to modern canonical package routes via 301 permanent redirects, with single-entry and bulk CSV import capabilities.</li>
+</ul>
+
+<h2>6. Non-Functional Requirements</h2>
+<ul>
+  <li><strong>Performance:</strong> Sub-2.5 second initial page render on 4G networks; verified via Next.js static page prerendering, automatic code splitting, and optimized Unsplash remote image caching.</li>
+  <li><strong>Security:</strong> Zero client exposure of secrets (Gemini API key and Supabase service keys are server-side only); PostgreSQL Row Level Security; HTTPOnly SameSite cookie session management; Zod schema validation; and honeypot bot defense.</li>
+  <li><strong>Reliability:</strong> Graceful degradation: if Google Gemini is unreachable or credentials are unconfigured, the system falls back to rule-based defaults, flags <code>review_needed: true</code>, and never drops or blocks an enquiry.</li>
+  <li><strong>Maintainability:</strong> Full TypeScript strict mode coverage across all modules; zero build warnings; modular separation across <code>lib/</code>, <code>components/</code>, and <code>app/</code> routes; 100% automated test passage.</li>
+  <li><strong>Scalability:</strong> Stateless server route handlers and transactional database operations designed for deployment on edge or serverless cloud infrastructure (Vercel/Supabase).</li>
+  <li><strong>Usability & Accessibility:</strong> Responsive across mobile, tablet, and desktop viewports; semantic HTML elements; accessible form labels; and high-contrast typography conforming to WCAG AA guidelines.</li>
+</ul>
+
+<h2>7. Technology Stack</h2>
+<table>
+  <tr>
+    <th>Technology</th>
+    <th>Version</th>
+    <th>Purpose</th>
+    <th>Where Used</th>
+  </tr>
+  <tr>
+    <td>Next.js (App Router)</td>
+    <td>15.5.28</td>
+    <td>Full-stack framework, SSR, routing</td>
+    <td>Entire application (<code>src/app/</code>)</td>
+  </tr>
+  <tr>
+    <td>React</td>
+    <td>19.0.0</td>
+    <td>Component architecture & reactivity</td>
+    <td>Frontend UI and forms</td>
+  </tr>
+  <tr>
+    <td>TypeScript</td>
+    <td>5.7.3</td>
+    <td>Static type checking & schema safety</td>
+    <td>Entire project codebase</td>
+  </tr>
+  <tr>
+    <td>Tailwind CSS</td>
+    <td>3.4.17</td>
+    <td>Custom luxury Kerala design system</td>
+    <td>Styling & responsive layout</td>
+  </tr>
+  <tr>
+    <td>Supabase / PostgreSQL</td>
+    <td>2.49.1</td>
+    <td>Database persistence & RLS</td>
+    <td><code>supabase/</code> and <code>src/lib/supabase/</code></td>
+  </tr>
+  <tr>
+    <td>Google Gen AI SDK</td>
+    <td>0.2.0</td>
+    <td>Server-side LLM extraction & drafting</td>
+    <td><code>src/lib/ai/gemini.ts</code></td>
+  </tr>
+  <tr>
+    <td>Zod</td>
+    <td>3.24.2</td>
+    <td>Schema validation & AI output parsing</td>
+    <td><code>src/lib/validation/</code></td>
+  </tr>
+  <tr>
+    <td>Vitest</td>
+    <td>3.2.7</td>
+    <td>Automated unit & integration testing</td>
+    <td><code>tests/</code> directory</td>
+  </tr>
+  <tr>
+    <td>Lucide React</td>
+    <td>0.475.0</td>
+    <td>Icons for travel & admin UX</td>
+    <td>Shared UI components</td>
+  </tr>
+  <tr>
+    <td>docx</td>
+    <td>9.2.0</td>
+    <td>Programmatic DOCX document generation</td>
+    <td><code>scripts/</code> & documentation</td>
+  </tr>
+</table>
+
+<h2>8. System Architecture</h2>
+<p>TripCanvas follows a layered architecture separating public presentation, administrative CMS operations, server-side business intelligence, and relational persistence:</p>
+
+<pre>
+graph TD
+  User[Public Traveller] -->|Browses Catalog / Submits Form| FE[Next.js App Router (SSR & RSC)]
+  Staff[Admin / Editor / Consultant] -->|Authenticates via Cookie| Portal[Staff Operations Dashboard]
+  
+  subgraph Next.js Application Core
+    FE --> Router[Route Handlers & Server Actions]
+    Portal --> Router
+    Router --> Auth[Auth & RBAC Middleware]
+    Router --> Val[Zod Schema Validation & Rate Limiting]
+    Router --> PricingEngine[Deterministic Pricing Calculator]
+    Router --> RecEngine[Package Scoring Matcher]
+  end
+
+  subgraph AI Services Layer
+    Router -->|Server-Side API Call| Gemini[Google Gemini API (@google/genai)]
+    Gemini -->|Structured JSON Extraction| Router
+  end
+
+  subgraph Persistence & Audit
+    Router --> Store[Unified Data Access Layer (Supabase / In-Memory Store)]
+    Store --> DB[(Supabase PostgreSQL)]
+    Store --> Audit[(activity_logs Table)]
+  end
+</pre>
+
+<h2>9. Application Modules</h2>
+<ul>
+  <li><strong>Catalog Module (<code>src/app/(public)/packages</code>):</strong> Renders published travel listings, handles client-side filtering, and renders detail pages with day-wise itineraries, route maps, and seasonal price tables.</li>
+  <li><strong>Enquiry Module (<code>src/app/(public)/enquire</code>):</strong> Handles public travel requests with client/server Zod validation, honeypot traps, and automated generation of acknowledgement records.</li>
+  <li><strong>Package CMS Module (<code>src/app/admin/packages</code>):</strong> Implements the 10-section package editor, draft persistence, draft preview rendering, transactional publishing, and historical rollback.</li>
+  <li><strong>CRM Inbox Module (<code>src/app/admin/enquiries</code>):</strong> Provides staff with centralized enquiry triage, status progression, consultant assignment, and internal note keeping.</li>
+  <li><strong>AI Operational Module (<code>src/lib/ai/</code>):</strong> Encapsulates Gemini extraction with strict timeouts, deterministic package recommendation scoring, and editorial quote drafting.</li>
+  <li><strong>Auth & RBAC Module (<code>src/lib/auth/</code>):</strong> Enforces role-based permissions across Admin, Editor, Consultant, and Traveller roles using HTTPOnly cookie sessions.</li>
+  <li><strong>Audit Logging Module (<code>src/app/admin/activity</code>):</strong> Tracks operational events across all entities to maintain compliance and traceability.</li>
+  <li><strong>Redirects Module (<code>src/app/admin/redirects</code>):</strong> Maintains permanent 301 redirects to ensure seamless SEO transition from legacy URLs.</li>
+</ul>
+
+<h2>10. Database Design</h2>
+<p>The relational database schema is structured into 11 tables in PostgreSQL:</p>
+
+<pre>
+erDiagram
+  profiles ||--o{ package_versions : "creates"
+  profiles ||--o{ enquiries : "assigned_to"
+  profiles ||--o{ enquiry_notes : "authors"
+  profiles ||--o{ enquiry_messages : "approves"
+  profiles ||--o{ activity_logs : "triggers"
+  
+  packages ||--o{ package_versions : "has_many"
+  packages ||--o{ enquiries : "referenced_in"
+  packages ||--o{ package_suggestions : "suggested_in"
+  
+  package_versions ||--o{ package_version_prices : "contains"
+  package_versions ||--o{ package_suggestions : "matched_version"
+  
+  enquiries ||--o| ai_extractions : "generates"
+  enquiries ||--o{ package_suggestions : "receives"
+  enquiries ||--o{ enquiry_notes : "contains"
+  enquiries ||--o{ enquiry_messages : "contains"
+</pre>
+
+<table>
+  <tr>
+    <th>Table Name</th>
+    <th>Primary Key</th>
+    <th>Key Foreign Keys</th>
+    <th>Description & Constraints</th>
+  </tr>
+  <tr>
+    <td>profiles</td>
+    <td>id (UUID)</td>
+    <td>auth.users(id)</td>
+    <td>Staff and user profiles with role check constraint ('admin', 'editor', 'consultant', 'traveller').</td>
+  </tr>
+  <tr>
+    <td>packages</td>
+    <td>id (TEXT)</td>
+    <td>published_version_id, draft_version_id</td>
+    <td>Master packages table holding unique slug and version pointers.</td>
+  </tr>
+  <tr>
+    <td>package_versions</td>
+    <td>id (UUID)</td>
+    <td>package_id (packages.id)</td>
+    <td>Immutable version records storing structured content, status ('draft','published','archived'), and version number.</td>
+  </tr>
+  <tr>
+    <td>package_version_prices</td>
+    <td>id (UUID)</td>
+    <td>package_version_id (package_versions.id)</td>
+    <td>Seasonal pricing tiers per version (season_name, start/end month, price_per_person, currency).</td>
+  </tr>
+  <tr>
+    <td>enquiries</td>
+    <td>id (UUID)</td>
+    <td>package_id, assigned_consultant_id</td>
+    <td>Traveller enquiries with unique enquiry_number, traveller counts, budget, consent flag, and status.</td>
+  </tr>
+  <tr>
+    <td>ai_extractions</td>
+    <td>id (UUID)</td>
+    <td>enquiry_id (enquiries.id)</td>
+    <td>Structured AI extraction output, confidence score, review_needed flag, and model metadata.</td>
+  </tr>
+  <tr>
+    <td>package_suggestions</td>
+    <td>id (UUID)</td>
+    <td>enquiry_id, package_id, package_version_id</td>
+    <td>Deterministic recommendation matches with 0-100 score and match reason arrays.</td>
+  </tr>
+  <tr>
+    <td>enquiry_notes</td>
+    <td>id (UUID)</td>
+    <td>enquiry_id, author_id (profiles.id)</td>
+    <td>Internal consultant discussion and operational notes.</td>
+  </tr>
+  <tr>
+    <td>enquiry_messages</td>
+    <td>id (UUID)</td>
+    <td>enquiry_id, approved_by (profiles.id)</td>
+    <td>Outgoing messages and AI proposal drafts with approval timestamps.</td>
+  </tr>
+  <tr>
+    <td>activity_logs</td>
+    <td>id (UUID)</td>
+    <td>actor_id (profiles.id)</td>
+    <td>Audit log entries recording action, entity_type, entity_id, and metadata JSON.</td>
+  </tr>
+  <tr>
+    <td>legacy_redirects</td>
+    <td>id (UUID)</td>
+    <td>None</td>
+    <td>Mapping of legacy source paths to new target paths with 301 status code.</td>
+  </tr>
+</table>
+
+<h2>11. API Documentation</h2>
+<table>
+  <tr>
+    <th>Method</th>
+    <th>Endpoint</th>
+    <th>Auth</th>
+    <th>Request / Purpose</th>
+    <th>Success Response</th>
+  </tr>
+  <tr>
+    <td>GET</td>
+    <td>/api/auth/session</td>
+    <td>Public</td>
+    <td>Inspect active cookie session</td>
+    <td><code>{ user, isAuthenticated: boolean }</code></td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td>/api/auth/session</td>
+    <td>Public</td>
+    <td>Body: { email } to authenticate demo staff role</td>
+    <td><code>{ success: true, user: Profile }</code></td>
+  </tr>
+  <tr>
+    <td>DELETE</td>
+    <td>/api/auth/session</td>
+    <td>Staff</td>
+    <td>Clears session cookie</td>
+    <td><code>{ success: true }</code></td>
+  </tr>
+  <tr>
+    <td>GET</td>
+    <td>/api/packages</td>
+    <td>Public / Staff</td>
+    <td>Query: ?scope=admin to retrieve drafts; default returns published</td>
+    <td><code>{ packages: PackageRecord[] }</code></td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td>/api/packages</td>
+    <td>Admin / Editor</td>
+    <td>Body: PackageEditorInput to create package with v1 draft</td>
+    <td>201 Created: <code>{ package: PackageRecord }</code></td>
+  </tr>
+  <tr>
+    <td>GET</td>
+    <td>/api/packages/[id]</td>
+    <td>Public / Staff</td>
+    <td>Retrieve package by ID with versions</td>
+    <td><code>{ package: PackageRecord }</code></td>
+  </tr>
+  <tr>
+    <td>PUT</td>
+    <td>/api/packages/[id]</td>
+    <td>Admin / Editor</td>
+    <td>Body: PackageEditorInput to update draft version</td>
+    <td><code>{ success: true, package: PackageRecord }</code></td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td>/api/packages/[id]/publish</td>
+    <td>Admin / Editor</td>
+    <td>Finalizes draft as published; updates pointer</td>
+    <td><code>{ success: true, message: string }</code></td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td>/api/packages/[id]/restore</td>
+    <td>Admin Only</td>
+    <td>Body: { versionNumber } to rollback to historical snapshot</td>
+    <td><code>{ success: true, package: PackageRecord }</code></td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td>/api/packages/[id]/duplicate</td>
+    <td>Admin / Editor</td>
+    <td>Duplicates package into a new draft</td>
+    <td><code>{ success: true, package: PackageRecord }</code></td>
+  </tr>
+  <tr>
+    <td>GET</td>
+    <td>/api/enquiries</td>
+    <td>Staff</td>
+    <td>Query: ?status=&destination= to filter CRM inbox</td>
+    <td><code>{ enquiries: EnquiryRecord[] }</code></td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td>/api/enquiries</td>
+    <td>Public</td>
+    <td>Body: EnquiryFormInput (with honeypot & rate limit)</td>
+    <td>201 Created: <code>{ enquiry: EnquiryRecord }</code></td>
+  </tr>
+  <tr>
+    <td>GET</td>
+    <td>/api/enquiries/[id]</td>
+    <td>Staff</td>
+    <td>Retrieve enquiry with AI extraction, suggestions, notes</td>
+    <td><code>{ enquiry, aiExtraction, suggestions, notes, messages }</code></td>
+  </tr>
+  <tr>
+    <td>PATCH</td>
+    <td>/api/enquiries/[id]</td>
+    <td>Staff</td>
+    <td>Body: { status, assignedConsultantId, aiExtractionUpdate }</td>
+    <td><code>{ success: true, ...updatedData }</code></td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td>/api/enquiries/[id]/notes</td>
+    <td>Staff</td>
+    <td>Body: { note } to append internal note</td>
+    <td>201 Created: <code>{ success: true, note: EnquiryNote }</code></td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td>/api/enquiries/[id]/draft-reply</td>
+    <td>Staff</td>
+    <td>Body: { packageId } to trigger AI reply generation</td>
+    <td><code>{ success: true, message: EnquiryMessage }</code></td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td>/api/enquiries/[id]/approve-reply</td>
+    <td>Consultant / Admin</td>
+    <td>Body: { messageId } to approve and simulate dispatch</td>
+    <td><code>{ success: true, message: EnquiryMessage }</code></td>
+  </tr>
+  <tr>
+    <td>GET</td>
+    <td>/api/activity</td>
+    <td>Staff</td>
+    <td>Retrieve audit activity log events</td>
+    <td><code>{ logs: ActivityLogRecord[] }</code></td>
+  </tr>
+  <tr>
+    <td>GET</td>
+    <td>/api/redirects</td>
+    <td>Public / Staff</td>
+    <td>Retrieve list of active 301 redirects</td>
+    <td><code>{ redirects: LegacyRedirectRecord[] }</code></td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td>/api/redirects</td>
+    <td>Admin / Editor</td>
+    <td>Body: JSON { sourcePath, targetPath } or CSV text</td>
+    <td><code>{ success: true, redirect: LegacyRedirectRecord }</code></td>
+  </tr>
+</table>
+
+<h2>12. User Workflows</h2>
+<ul>
+  <li><strong>Traveller Discovery & Booking:</strong> 1. Lands on editorial homepage -> 2. Explores curated packages (<code>/packages</code>) with duration/price/season filters -> 3. Views full package details (<code>/packages/[slug]</code>) reviewing twin-sharing rates, GST disclosures, and itinerary -> 4. Clicks 'Enquire Now' -> 5. Completes validated form with consent -> 6. Receives reference number and instant acknowledgement.</li>
+  <li><strong>Content Authoring & Publishing:</strong> 1. Editor signs into <code>/login</code> -> 2. Opens Package CMS (<code>/admin/packages</code>) -> 3. Edits itinerary or adds seasonal pricing -> 4. Saves draft -> 5. Reviews draft appearance at <code>/admin/packages/[id]/preview</code> -> 6. Administrator executes 'Publish Live' -> 7. Published version becomes active and public.</li>
+  <li><strong>Enquiry Processing & AI Assistance:</strong> 1. Consultant views <code>/admin/enquiries</code> -> 2. Opens enquiry details -> 3. Inspects original message and Gemini extracted fields -> 4. Corrects any ambiguous fields -> 5. Reviews deterministic package matches -> 6. Triggers 'Generate Editorial Draft' -> 7. Edits draft and explicitly approves proposal -> 8. Status transitions to 'Replied'.</li>
+</ul>
+
+<h2>13. Frontend Design</h2>
+<p>
+  The frontend architecture utilizes React Server Components (RSC) to maximize performance and SEO, complemented by focused client components for interactivity (e.g. <code>ItineraryAccordion</code>, <code>EnquiryForm</code>, <code>PackageEditorForm</code>). State management utilizes React hooks and URL search params for bookmarkable filters. Forms enforce client-side Zod validation with real-time error feedback, disabled submission states, and accessible error alerts.
+</p>
+
+<h2>14. Backend Design</h2>
+<p>
+  The backend layer is structured into modular domain services located in <code>src/lib/</code>: <code>db/store.ts</code> manages transactional persistence; <code>ai/gemini.ts</code> manages Google Gen AI interactions; <code>ai/recommendation.ts</code> encapsulates the deterministic scoring algorithm; <code>pricing/calculator.ts</code> calculates transparent tariffs; and <code>auth/session.ts</code> governs cryptographic cookie parsing. All mutations log structured entries into <code>activity_logs</code>.
+</p>
+
+<h2>15. Security Considerations</h2>
+<ul>
+  <li><strong>Server-Side Secret Isolation:</strong> The Google Gemini API key and Supabase credentials are strictly inaccessible from client runtimes. No secret keys are committed to Git.</li>
+  <li><strong>Input Sanitization & Validation:</strong> All incoming payloads are strictly validated against Zod schemas; malformed or unverified fields are rejected before reaching business logic.</li>
+  <li><strong>Bot Mitigation & Rate Limiting:</strong> Enquiry endpoints feature hidden honeypot fields that trap automated scrapers and in-memory IP rate limiting (10 requests per minute).</li>
+  <li><strong>Row Level Security (RLS):</strong> PostgreSQL tables enforce policies restricting public queries to published records and safeguarding enquiry details to authenticated staff.</li>
+  <li><strong>DPDP Act 2023 Compliance:</strong> Explicit consent tracking for WhatsApp and email communication is maintained with transparent withdrawal notices.</li>
+</ul>
+
+<h2>16. Testing Strategy</h2>
+<p>
+  TripCanvas incorporates an automated test suite executed via Vitest, verifying 15 critical unit and integration test assertions across 5 core suites:
+</p>
+<ul>
+  <li><strong>Pricing Suite (<code>tests/unit/pricing.test.ts</code>):</strong> Verifies correct seasonal selection across Peak (Dec) and Monsoon (Jul) months, strict 5% GST computation, and child disclaimer enforcement.</li>
+  <li><strong>Validation Suite (<code>tests/unit/validation.test.ts</code>):</strong> Verifies that invalid email formats and honeypot triggers are rejected, while valid payloads are safely committed.</li>
+  <li><strong>AI & Recommendation Suite (<code>tests/unit/ai-recommendation.test.ts</code>):</strong> Verifies that recommendations only reference published packages and that AI fallback handles offline scenarios without dropping enquiries.</li>
+  <li><strong>Versioning Suite (<code>tests/unit/versioning.test.ts</code>):</strong> Verifies that draft modifications do not pollute published live content, publishing updates pointers, and rollback creates new version snapshots.</li>
+  <li><strong>Authorization Suite (<code>tests/unit/authorization.test.ts</code>):</strong> Verifies that public users cannot access admin operations, editors cannot manage roles, and consultants have scoped access.</li>
+</ul>
+<p><strong>Result:</strong> All 15 tests have been executed and verified in the workspace environment, passing with zero failures.</p>
+
+<h2>17. Deployment Architecture</h2>
+<p>
+  TripCanvas is configured for automated continuous deployment on Vercel paired with a Supabase PostgreSQL backend. Next.js statically prerenders public marketing routes (<code>/about</code>, <code>/contact</code>, <code>/privacy</code>, <code>/terms</code>, <code>sitemap.xml</code>) while dynamically executing server routes (<code>/packages</code>, <code>/admin/*</code>, <code>/api/*</code>). Complete migration scripts are maintained in <code>supabase/migrations/</code> and detailed deployment steps are provided in <code>deployment.md</code>.
+</p>
+
+<h2>18. Environment Variables</h2>
+<table>
+  <tr>
+    <th>Variable Name</th>
+    <th>Required</th>
+    <th>Purpose</th>
+    <th>Safe Placeholder Example</th>
+  </tr>
+  <tr>
+    <td>NEXT_PUBLIC_SUPABASE_URL</td>
+    <td>Yes</td>
+    <td>Supabase PostgreSQL endpoint</td>
+    <td>https://your-project.supabase.co</td>
+  </tr>
+  <tr>
+    <td>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</td>
+    <td>Yes</td>
+    <td>Supabase anonymous public key</td>
+    <td>sb_publishable_placeholder</td>
+  </tr>
+  <tr>
+    <td>NEXT_PUBLIC_SITE_URL</td>
+    <td>Yes</td>
+    <td>Canonical URL for SEO & sitemaps</td>
+    <td>http://localhost:3000</td>
+  </tr>
+  <tr>
+    <td>GEMINI_API_KEY</td>
+    <td>Yes (for AI)</td>
+    <td>Google Gen AI server-side API key</td>
+    <td>your-gemini-api-key-here</td>
+  </tr>
+</table>
+
+<h2>19. Error Handling and Logging</h2>
+<p>
+  TripCanvas applies structured error handling across both client and server boundaries. API route handlers wrap operations in try-catch blocks returning standard JSON error responses with appropriate HTTP status codes (400, 401, 403, 404, 429, 500). If Gemini encounters network timeouts or rate limits, the intake pipeline safely logs the warning and falls back to rule-based defaults. Operational changes are recorded in the <code>activity_logs</code> table for auditability.
+</p>
+
+<h2>20. Performance and Scalability</h2>
+<p>
+  Performance optimizations include: Incremental Static Regeneration (ISR) and static page generation for public marketing routes; Next.js Image optimization for remote Unsplash photography; CSS bundle minification via Tailwind; and lightweight Lucide SVG icons. For future enterprise scaling, database connection pooling via Supabase pgBouncer and distributed caching via Redis are recommended.
+</p>
+
+<h2>21. Known Limitations</h2>
+<ul>
+  <li><strong>Simulated External Delivery:</strong> Outbound emails and WhatsApp dispatches are simulated as message records in the local database rather than delivered to live telecom carriers.</li>
+  <li><strong>Offline AI Rule Fallback:</strong> When running without a valid Gemini API key, AI extraction relies on regex heuristics and flags the intake for manual consultant review.</li>
+  <li><strong>Single-Region In-Memory State:</strong> The in-memory data store operates on a single Node.js process; production deployment across multiple serverless regions requires executing the provided Supabase SQL migrations.</li>
+</ul>
+
+<h2>22. Future Enhancements</h2>
+<ul>
+  <li><strong>PDF Proposal Builder:</strong> Automated client-side or server-side generation of branded PDF itinerary brochures with dynamic customer names and prices.</li>
+  <li><strong>Two-Way WhatsApp Webhook Sync:</strong> Live bi-directional synchronization of WhatsApp chat transcripts into the enquiry CRM thread.</li>
+  <li><strong>Hotel Inventory Integrations:</strong> Direct API integration with Channel Managers (e.g. SiteMinder) for real-time room availability confirmation.</li>
+</ul>
+
+<h2>23. Installation and Execution</h2>
+<p>
+  To execute TripCanvas locally:
+</p>
+<pre>
+# 1. Install dependencies
+npm install
+
+# 2. Execute automated test suite
+npm test
+
+# 3. Start development server
+npm run dev
+
+# 4. Production build
+npm run build && npm run start
+</pre>
+<p>Refer to <code>deployment.md</code> for complete cloud migration and Supabase setup instructions.</p>
+
+<h2>25. Conclusion</h2>
+<p>
+  TripCanvas represents a robust, production-quality solution tailored to the operational and brand requirements of Company A, Kochi. By combining an editorial design aesthetic with versioned CMS immutability, deterministic pricing controls, server-side AI extraction, and role-based access control, the platform resolves developer bottlenecks and transforms travel enquiry triage into an efficient, professional workflow.
+</p>
+
+</body>
+</html>

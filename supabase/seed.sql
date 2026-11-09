@@ -398,3 +398,4 @@ VALUES
   ('/packages/old-munnar-thekkady.php', '/packages/munnar-thekkady-alleppey-houseboat', 301),
   ('/destinations/south-india/rameswaram.html', '/packages/madurai-rameswaram-kanyakumari', 301)
 ON CONFLICT (source_path) DO NOTHING;
+

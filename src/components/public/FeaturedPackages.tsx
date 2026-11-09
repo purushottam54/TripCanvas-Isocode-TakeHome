@@ -44,3 +44,4 @@ export function FeaturedPackages({ packages }: FeaturedPackagesProps) {
     </section>
   );
 }
+

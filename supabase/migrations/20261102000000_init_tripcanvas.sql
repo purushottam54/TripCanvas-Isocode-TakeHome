@@ -288,3 +288,4 @@ CREATE POLICY "Staff insert activity logs" ON public.activity_logs
 -- Legacy Redirects: Public can read
 CREATE POLICY "Public read redirects" ON public.legacy_redirects
   FOR SELECT USING (true);
+

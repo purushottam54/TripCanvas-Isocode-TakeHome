@@ -12,3 +12,4 @@ export async function GET() {
   const logs = await getActivityLogs();
   return NextResponse.json({ logs });
 }
+

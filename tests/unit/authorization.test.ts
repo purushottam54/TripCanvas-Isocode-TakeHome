@@ -51,3 +51,4 @@ describe("Role-Based Authorization & Access Control", () => {
     expect(hasPermission(adminRole, "canViewActivityLogs")).toBe(true);
   });
 });
+

@@ -226,3 +226,4 @@ export default async function PackagesListingPage({ searchParams }: PackagesPage
     </div>
   );
 }
+

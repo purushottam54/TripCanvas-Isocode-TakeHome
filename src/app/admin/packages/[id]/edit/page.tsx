@@ -27,3 +27,4 @@ export default async function EditPackagePage({ params }: EditPackagePageProps) 
     </div>
   );
 }
+

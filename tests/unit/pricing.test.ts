@@ -56,3 +56,4 @@ describe("Transparent Pricing Engine", () => {
     expect(quote.priceBasis).toBe("per person on twin sharing basis");
   });
 });
+

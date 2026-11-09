@@ -52,3 +52,4 @@ export async function requireStaffRole(allowedRoles?: UserRole[]): Promise<UserP
 
   return user;
 }
+

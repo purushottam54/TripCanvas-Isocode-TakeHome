@@ -96,3 +96,4 @@ function getMonthRangeLabel(start: number, end: number): string {
   ];
   return `${months[start - 1]} – ${months[end - 1]}`;
 }
+

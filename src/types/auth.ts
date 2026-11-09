@@ -13,3 +13,4 @@ export interface AuthSession {
   user: UserProfile | null;
   isAuthenticated: boolean;
 }
+

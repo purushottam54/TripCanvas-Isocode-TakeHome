@@ -190,3 +190,4 @@ export function RedirectManager({ initialRedirects }: RedirectManagerProps) {
     </div>
   );
 }
+

@@ -8,3 +8,4 @@ export default async function AdminRootPage() {
   }
   redirect("/admin/packages");
 }
+

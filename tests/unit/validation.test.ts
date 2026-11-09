@@ -54,3 +54,4 @@ describe("Enquiry Form Validation & Spam Protection", () => {
     expect(saved.status).toBe("new");
   });
 });
+

@@ -765,3 +765,4 @@ export async function addLegacyRedirect(sourcePath: string, targetPath: string):
 export async function getStaffProfiles(): Promise<UserProfile[]> {
   return store.profiles;
 }
+

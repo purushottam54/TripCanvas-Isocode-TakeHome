@@ -103,3 +103,4 @@ export function ItineraryAccordion({ days }: ItineraryAccordionProps) {
     </div>
   );
 }
+

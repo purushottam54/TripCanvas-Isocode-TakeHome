@@ -151,3 +151,4 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
     </aside>
   );
 }
+

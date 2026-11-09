@@ -51,3 +51,4 @@ export interface EnquiryMessage {
   channel: string;
   createdAt: string;
 }
+

@@ -134,3 +134,4 @@ TripCanvas includes a built-in staff authentication portal accessible at `/login
 - Enquiries are safely committed to PostgreSQL.
 - The AI extraction service automatically flags the intake as `review_needed: true` with a fallback status, allowing the consultant to verify parameters manually.
 - Package recommendations rely on a deterministic database scoring function, completely independent of external LLM availability.
+

@@ -58,3 +58,4 @@ Visit [http://localhost:3000/login](http://localhost:3000/login) for the staff p
 - `deployment.md`: Detailed deployment, database migration, and operations guide.
 - `supabase/migrations/`: Complete PostgreSQL schema with Row Level Security (RLS).
 - `supabase/seed.sql`: Realistic seed data including PKG-KL-07, PKG-SI-12, and sample enquiries.
+
